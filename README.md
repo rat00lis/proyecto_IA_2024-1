@@ -1,5 +1,10 @@
-# proyecto_IA_2024-1
+# Proyecto IA 2024-1
 Proyecto de IA 2048
+Integrantes:
+- Bruno Arce R.
+- Oliver Brito A.
+- Emilio Ramos M.
+- Luis Valenzuela C.
 
 ## Una breve descripción del problema que abordarán.
 El proyecto consiste en la resolución del juego 2048 mediante el uso de inteligencia artificial.
