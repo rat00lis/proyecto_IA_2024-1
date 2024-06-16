@@ -129,3 +129,64 @@ class matrix_2048:
     def print_matrix(self):
         for row in self.matrix:
             print(row)
+    
+    #funcion de movimiento que llamara el agente con
+    #la decision. Debe retornar recompensa, gameover y puntaje
+    def play_step(self, direction):
+        movement = None
+        reward = 0
+        gameover = False
+        #direction = [0,0,0,0] con un 1 en la dirección
+        if direction[0]:
+            movement = self.up
+        elif direction[1]:
+            movement = self.down
+        elif direction[2]:
+            movement = self.left
+        elif direction[3]:
+            movement = self.right
+        
+        if movement:
+            if self.is_legal(movement):
+                reward = self.get_reward(movement)
+                movement()
+                self.add_number()
+                gameover = self.game_over()
+        return reward, gameover, self.get_score()
+
+
+    def get_reward(self, movement):
+        # Guardar el estado actual de la matriz antes del movimiento
+        old_matrix = [row[:] for row in self.matrix]
+
+        # Realizar el movimiento
+        movement()
+
+        # Calcular la recompensa basada en las diferencias entre las matrices
+        reward = 0
+        moved_but_not_merged = 0
+        for i in range(4):
+            for j in range(4):
+                if self.matrix[i][j] != old_matrix[i][j]:
+                    # Si la celda en la nueva matriz es mayor, se combinaron celdas
+                    if self.matrix[i][j] > old_matrix[i][j]:
+                        reward += self.matrix[i][j] - old_matrix[i][j]
+                    # Si una celda se movió pero su valor no está en la matriz antigua, se movió pero no se fusionó
+                    elif self.matrix[i][j] > 0 and not any(self.matrix[i][j] in row for row in old_matrix):
+                        moved_but_not_merged += 1
+
+        # Restar las celdas movidas pero no fusionadas del reward
+        reward -= moved_but_not_merged
+
+        # Penalizar si la matriz no cambió
+        if old_matrix == self.matrix:
+            reward = -100
+        # Restaurar la matriz al estado original antes del movimiento
+        self.matrix = old_matrix
+
+        return reward
+
+    def restart(self):
+        self.matrix = [[0] * 4 for _ in range(4)]
+        self.add_number()
+        self.add_number()
