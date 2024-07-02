@@ -1,7 +1,7 @@
 #agente para que aprenda a jugar 2048
 
-#acciones: arriba, abajo, izquierda, derecha
-#estado: matriz 4x4 con los valores actuales,
+# acciones: arriba, abajo, izquierda, derecha
+# estado: matriz 4x4 con los valores actuales,
 #       la puntuación actual y la puntuación máxima
 #       
 #recompensa: puntaje total de las celdas que se unieron
