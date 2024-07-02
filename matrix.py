@@ -4,7 +4,7 @@ import random
 class matrix_2048:
     #constructor
     def __init__ (self):
-        self.WINCONDITION = 4096
+        self.WINCONDITION = 2048
         self.score = 0
         self.matrix = [[0] * 4 for _ in range(4)]
         self.add_number()
