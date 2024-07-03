@@ -4,7 +4,7 @@ import random
 class matrix_2048:
     #constructor
     def __init__ (self):
-        self.WINCONDITION = 4096
+        self.WINCONDITION = 2048
         self.score = 0
         self.matrix = [[0] * 4 for _ in range(4)]
         self.add_number()
@@ -22,8 +22,8 @@ class matrix_2048:
             return
         
         random_cell = random.choice(empty) #se elige una celda aleatoria de la lista de celdas vacías
-        random_number = random.randint(0,1) #se elige un número aleatorio entre 0 y 1
-        self.matrix[random_cell[0]][random_cell[1]] = 2 if random_number == 0 else 4 #se añade un 2 o un 4 a la celda aleatoria
+        random_number = random.randint(0,9) #se elige un número aleatorio entre 0 y 1
+        self.matrix[random_cell[0]][random_cell[1]] = 2 if random_number <= 8 else 4 #se añade un 2 o un 4 a la celda aleatoria
 
     # mover la matriz hacia arriba
     def up(self):
