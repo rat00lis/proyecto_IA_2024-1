@@ -137,21 +137,13 @@ class matrix_2048:
     #se puede probar un movimiento sin cambiar la matriz
     #y se retorna la matriz resultante
     def try_step(self, move):
-        new_matrix = copy.deepcopy(self.matrix)
-        if move == 'up':
-            self.up()
-        elif move == 'down':
-            self.down()
-        elif move == 'left':
-            self.left()
-        elif move == 'right':
-            self.right()
-        else:
-            #exception
-            return None
-        temp = copy.deepcopy(self.matrix)
-        self.matrix = new_matrix
-        return temp
+        new_matrix = copy.deepcopy(self)
+        if move == 'up': new_matrix.up()
+        elif move == 'down': new_matrix.down()
+        elif move == 'left': new_matrix.left()
+        elif move == 'right': new_matrix.right()
+        else: return None
+        return new_matrix.get_state()
     
     #resetear
     def restart(self):
