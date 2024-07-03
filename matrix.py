@@ -95,7 +95,7 @@ class matrix_2048:
             row = [x for x in row if x != 0]
             row = [0] * (4 - len(row)) + row
             self.matrix[i] = row
-    
+        
         return old_matrix != self.matrix
     
     #el agente de inteligencia artificial debe ser capaz de obtener el estado actual del juego
