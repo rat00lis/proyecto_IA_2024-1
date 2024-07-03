@@ -99,7 +99,7 @@ class matrix_2048:
         return old_matrix != self.matrix
     
     #el agente de inteligencia artificial debe ser capaz de obtener el estado actual del juego
-    def get_matrix(self):
+    def get_state(self):
         #retornar la matriz
         return self.matrix
     

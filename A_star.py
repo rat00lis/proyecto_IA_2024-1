@@ -3,63 +3,62 @@ from matrix import matrix_2048
 import heapq
 import copy
 
-def snake_heuristic(matrix):
-    snake_weight = [[15, 14, 13, 12],
-                    [8, 9, 10, 11],
-                    [7, 6, 5, 4],
-                    [0, 1, 2, 3]]
+def snake_heuristic(state):
+    snake_weight = [[ 10,   8,    7,    6.5],
+                    [ 0.5,  0.7,  1,    3],
+                    [-0.5, -1.5, -1.8, -2],
+                    [-3.8, -3.7, -3.5, -3]]
     heuristic_value = 0
     for i in range(4):
         for j in range(4):
-            heuristic_value += matrix[i][j] * snake_weight[i][j]
+            heuristic_value += state[i][j] * snake_weight[i][j]
     return heuristic_value
 
-
 class AStar2048:
-    def __init__(self, initial_matrix):
-        self.initial_matrix = initial_matrix
+    def __init__(self, initial_state):
+        self.initial_state = initial_state
     
-    def heuristic(self, matrix):
-        return snake_heuristic(matrix)
+    def heuristic(self, state):
+        return snake_heuristic(state)
 
-    def a_star_search(self, matrix):
-        steps_matrixes = []
+    def a_star_search(self, state):
         moves = ['up', 'down', 'left', 'right']
+        heuristic_values = []
         for move in moves:
-            new_matrix = matrix.try_step(move)
-            old_matrix = matrix.get_matrix()
-            if new_matrix != old_matrix:
-                steps_matrixes.append(new_matrix)
+            new_state = state.try_step(move)
+            old_state = state.get_matrix()
+            if new_state != old_state:
+                heuristic_values.append(self.heuristic(new_state))
             else:
-                steps_matrixes.append([[-100] * 4 for _ in range(4)])
+                heuristic_values.append(-100000000000)
         
-        best_move = -1
-        best_index = 0
+        # rescatar en indice de mayor valor de heuristic_values
+        # retornar indice de max value de heuristic_values
+        best_move = -100000000000
+        best_index = -1
 
-        for i in range(len(steps_matrixes)):
-            value = self.heuristic(steps_matrixes[i])
-            if value > best_move:
-                best_move = value
+        for i in range(len(heuristic_values)):
+            if heuristic_values[i] > best_move:
+                best_move = heuristic_values[i]
                 best_index = i
         return best_index
     
-    def init_algorithm(self,matrix):
-        while matrix.game_over()!=False:
+    def init_algorithm(self,game):
+        while game.game_over()!=False:
             direction = ['up', 'down', 'left', 'right']
-            move = self.a_star_search(matrix)
-            movement = getattr(matrix, direction[move], None)
+            move = self.a_star_search(game)
+            movement = getattr(game, direction[move], None)
             movement()
-            matrix.add_number()
-        return matrix.get_max_value()
+            game.add_number()
+        return game.get_max_value()
         
-
 # Inicialización de A*
 max_value = 0
 while max_value < 2048:
-    initial_game = matrix_2048()
-    astar_solver = AStar2048(initial_game)
-    max_value = astar_solver.init_algorithm(initial_game)
+    game = matrix_2048()
+    astar_solver = AStar2048(game)
+    max_value = astar_solver.init_algorithm(game)
     print(f"Max value: {max_value}")
-    initial_game.print_matrix()
+    game.print_matrix()
     print()
 
