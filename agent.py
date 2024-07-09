@@ -35,3 +35,25 @@ class agent:
         g = self.population.get_cur()
         return g.decide(features, self.get_allowed_moves(board))
     
+    def save_agent(self):
+        self.population.save_population(filename="agent.json")
+        #agregar score y count
+        with open("agent.json", "r") as file:
+            data = json.load(file)
+            data["score_agent"] = self.score
+            data["count_agent"] = self.count
+        with open("agent.json", "w") as file:
+            json.dump(data, file)
+
+
+    def load_agent(self):
+        try:
+            self.population.load_population(filename="agent.json")
+            #cargar score y count
+            with open("agent.json", "r") as file:
+                data = json.load(file)
+                self.score = data["score_agent"]
+                self.count = data["count_agent"]
+        except:
+            print("No existe un agente entrenado, para entrenar uno ejecute training.py")
+            exit()

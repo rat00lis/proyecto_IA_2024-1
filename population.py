@@ -1,4 +1,6 @@
 import random
+import os
+import json
 from utils import *
 
 '''
@@ -49,6 +51,69 @@ class decision_tree:
                 return self.right.decide(X)
         else:
             return self.value
+    
+    def to_dict(self):
+        if self.test is not None:
+            return {
+                "feature": self.test.feature,
+                "cmp_with": self.test.cmp_with,
+                "test": self.test.test,
+                "left": self.left.to_dict(),
+                "right": self.right.to_dict(),
+                "height": self.height
+            }
+        else:
+            return {
+                "value": self.value,
+                "height": self.height
+            }
+
+    def save_tree(self, filename):
+        tree_dict = self.to_dict()
+        with open(filename, 'w') as file:
+            json.dump(tree_dict, file, indent=4)
+
+    @staticmethod
+    def load_tree(filename):
+        with open(filename, 'r') as file:
+            tree_dict = json.load(file)
+        
+        def dict_to_tree(d):
+            if "value" in d:
+                node = decision_tree(0, [])
+                node.value = d["value"]
+                node.height = d["height"]
+                return node
+            else:
+                node = decision_tree(d["height"], [])
+                node.test = decider([])
+                node.test.feature = d["feature"]
+                node.test.cmp_with = d["cmp_with"]
+                node.test.test = d["test"]
+                node.left = dict_to_tree(d["left"])
+                node.right = dict_to_tree(d["right"])
+                return node
+        
+        return dict_to_tree(tree_dict)
+
+    @staticmethod
+    def from_dict(tree_dict, limits):
+        if "value" in tree_dict:
+            # It's a leaf node
+            node = decision_tree(0, limits)
+            node.value = tree_dict["value"]
+        else:
+            # It's an internal node
+            height = tree_dict["height"]
+            node = decision_tree(height, limits)
+            node.test = decider(limits)
+            node.test.feature = tree_dict["feature"]
+            node.test.cmp_with = tree_dict["cmp_with"]
+            node.test.test = tree_dict["test"]
+            node.left = decision_tree.from_dict(tree_dict["left"], limits)
+            node.right = decision_tree.from_dict(tree_dict["right"], limits)
+        node.height = tree_dict.get("height", 0)  # Ensure height is set for both leaf and internal nodes
+        return node
 
 """
 
@@ -113,6 +178,25 @@ class genome:
                 choices[i] = -1
         #retornando el indice de la decision con mayor votacion
         return choices.index(max(choices))
+    
+    def to_dict(self):
+        return {
+            'size': self.size,
+            'score': self.score,
+            'limits': self.limits,
+            'mutation_rate': self.mutation_rate,
+            'tree_heights': self.tree_heights,
+            'genes': [tree.to_dict() for tree in self.genes]
+        }
+    
+    @staticmethod
+    def from_dict(genome_dict):
+        g = genome(genome_dict['size'], genome_dict['tree_heights'], genome_dict['mutation_rate'])
+        g.score = genome_dict['score']
+        g.limits = genome_dict['limits']
+        # Inside genome.from_dict method
+        g.genes = [decision_tree.from_dict(tree_dict, g.limits) for tree_dict in genome_dict['genes']]
+        return g
 
 """
     Population
@@ -194,4 +278,30 @@ class population:
     def get_cur(self):
         return self.individuals[self.cur]
     
+
+    def save_population(self, filename):
+        population_dict = {
+            'size': self.size,
+            'cur': self.cur,
+            'gen': self.gen,
+            'genome_size': self.genome_size,
+            'individuals': [ind.to_dict() for ind in self.individuals]
+        }
+        with open(filename, 'w') as file:
+            json.dump(population_dict, file, indent=4)
+
+
+    def load_population(self, filename):
+        print ("Cargando la población...")
+        with open(filename, 'r') as file:
+            population_dict = json.load(file)
+        
+        self.size = population_dict['size']
+        self.cur = population_dict['cur']
+        self.gen = population_dict['gen']
+        self.genome_size = population_dict['genome_size']
+        total = len(population_dict['individuals'])
+        for i, ind in enumerate(population_dict['individuals'], start=1):
+            self.individuals.append(genome.from_dict(ind))
+            print(f"{i}/{total}")        # print(self.individuals)
 
