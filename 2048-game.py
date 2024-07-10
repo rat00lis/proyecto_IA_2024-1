@@ -3,6 +3,12 @@ import pygame
 import copy
 import math
 from matrix import matrix_2048
+from randomRollouts import MCTS2048
+
+algorithm = 1 #0 = jugador, 1 = mcts
+
+if algorithm == 1:
+    MCTS2048 = MCTS2048(5,0,1)
 
 def get_font_settings(cell):
     settings = {
@@ -149,31 +155,43 @@ while running:
 
     # Verificar si el juego ha terminado
     if game.game_over() != None:
-        draw_game_over(screen, game, WIDTH, HEIGHT)
+        #draw_game_over(screen, game, WIDTH, HEIGHT)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game.restart()
+        draw_game_layout(screen, game, WIDTH, HEIGHT)
+        draw_game_board(screen, game.matrix, num_rows, num_cols, matrixStartX, matrixStartY, horizontal, vertical, margin, cellSize)
+        pygame.display.flip()
         continue
     
     draw_game_layout(screen, game, WIDTH, HEIGHT)
     draw_game_board(screen, game.matrix, num_rows, num_cols, matrixStartX, matrixStartY, horizontal, vertical, margin, cellSize)
 
-    # Eventos
-    valid_movement = False
-    previous_matrix = copy.deepcopy(game.matrix)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            key = pygame.key.name(event.key)
-            if key == 'w' or key == 'up': valid_movement = game.up()
-            elif key == 's' or key == 'down': valid_movement = game.down()
-            elif key == 'a' or key == 'left': valid_movement = game.left()
-            elif key == 'd' or key == 'right': valid_movement = game.right()
-    if valid_movement:
+    if algorithm == 0:
+        # Eventos
+        valid_movement = False
+        previous_matrix = copy.deepcopy(game.matrix)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                key = pygame.key.name(event.key)
+                if key == 'w' or key == 'up': valid_movement = game.up()
+                elif key == 's' or key == 'down': valid_movement = game.down()
+                elif key == 'a' or key == 'left': valid_movement = game.left()
+                elif key == 'd' or key == 'right': valid_movement = game.right()
+        if valid_movement:
+            game.add_number()
+    elif algorithm == 1:
+        best_move = MCTS2048.select_best_move(game)
+        if best_move == 'up': game.up()
+        elif best_move == 'down': game.down()
+        elif best_move == 'left': game.left()
+        elif best_move == 'right': game.right()
         game.add_number()
+    
     pygame.display.flip()
 pygame.quit()
