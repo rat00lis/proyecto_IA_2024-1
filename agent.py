@@ -1,59 +1,84 @@
-from population import *
+#agente para que aprenda a jugar 2048
 
-class agent:
-    def __init__ (self, population_size, genome_size, mutation_rate, tree_height):
-        self.score = 0
-        self.count = 0
-        self.population = population(population_size, genome_size, mutation_rate, tree_height)
-    
-    def restart_game(self):
-        if self.score > 0:
-            self.count += 1
-            self.population.get_cur().score = self.score
-            self.population.go_next()
-    
-    def get_allowed_moves(self, board):
-        allowed = [False, False, False, False]
+# acciones: arriba, abajo, izquierda, derecha
+# estado: matriz 4x4 con los valores actuales,
+#       la puntuación actual y la puntuación máxima
+#       
+#recompensa: puntaje total de las celdas que se unieron
+#           en la última acción
+#
+#restricciones: no se permiten movimientos que no cambien
+#               la matriz
+#               no se permiten movimientos inválidos
+#
+#objetivo: obtener el mayor puntaje posible
+#
+# output: 4 acciones y elegir la mejor
 
-        for x in range(0, 4):
-            for y in range(0, 4):
-                if board[y][x] != None:
-                    if y < 3 and board[y + 1][x] in (None, board[y][x]):
-                        allowed[0] = True
-                    if y > 0 and board[y - 1][x] in (None, board[y][x]):
-                        allowed[1] = True
-                    if x > 0 and board[y][x - 1] in (None, board[y][x]):
-                        allowed[2] = True
-                    if x < 3 and board[y][x + 1] in (None, board[y][x]):
-                        allowed[3] = True
+import torch
+import numpy
+import random
+from matrix import matrix_2048
+from collections import deque
+from model import Linear_QNet, QTrainer
+
+MAX_MEMORY = 100_000
+BATCH_SIZE = 1000
+LR = 0.001
+
+class Agent:
+    def __init__(self):
+        self.number_of_games = 0
+        self.epsilon = 0 #random
+        self.gamma = 0.9 #tasa de descuento
+        self.memory = deque(maxlen=MAX_MEMORY)
+        #inputs son 16 valores de la matriz y la puntuación
+        #outputs son 4 valores para las 4 acciones
+        self.model = Linear_QNet(17, 256, 4)
+        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+
+    
+    def get_state(self, game):
+        #retornar el estado actual del juego
+        #la matriz 4x4 con los valores actuales
+        #la puntuación actual
         
-        return allowed
-    
-    def get_move(self, score, board):
-        self.score = score
-        features = extract_features(board)
-        g = self.population.get_cur()
-        return g.decide(features, self.get_allowed_moves(board))
-    
-    def save_agent(self):
-        self.population.save_population(filename="agent.json")
-        #agregar score y count
-        with open("agent.json", "r") as file:
-            data = json.load(file)
-            data["score_agent"] = self.score
-            data["count_agent"] = self.count
-        with open("agent.json", "w") as file:
-            json.dump(data, file)
+        matrix = game.get_matrix()
+        score = game.get_score()
+        #make the matrix an array
+        state = numpy.array(matrix).flatten()
+        state = numpy.append(state, score)
+        return state
 
 
-    def load_agent(self):
-        try:
-            self.population.load_population(filename="agent.json")
-            #cargar score y count
-            with open("agent.json", "r") as file:
-                data = json.load(file)
-                self.score = data["score_agent"]
-                self.count = data["count_agent"]
-        except:
-            print("No existe un agente entrenado, para entrenar uno ejecute training.py")
-            exit()
+    def remember(self, state, action, reward, next_state, gameover):
+        self.memory.append((state, action, reward, next_state, gameover))
+
+    def train_long_memory(self):
+        if len(self.memory) > BATCH_SIZE:
+            mini_sample = random.sample(self.memory, BATCH_SIZE)
+        else:
+            mini_sample = self.memory
+        
+        states, actions, rewards, next_states, gameovers = zip(*mini_sample)
+        self.trainer.train_step(states, actions, rewards, next_states, gameovers)
+
+
+    def train_short_memory(self, state, action, reward, next_state, gameover):
+        self.trainer.train_step(state, action, reward, next_state, gameover)
+
+    def get_action(self, state):
+        #random moves: tradeoff entre la exploracion y la explotación
+        self.epsilon = 80 - self.number_of_games
+        final_move = [0, 0, 0, 0]
+        if random.randint(0, 200) < self.epsilon:
+            move = random.randint(0, 3)
+            final_move[move] = 1
+        else:
+            state0 = torch.tensor(state, dtype=torch.float)
+            prediction = self.model(state0)
+            move = torch.argmax(prediction).item()
+            final_move[move] = 1
+        return final_move
+        
+
