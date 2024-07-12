@@ -1,7 +1,0 @@
-<<<<<<< HEAD
-__pycache__/
-genetico/agent.json
-DQN/training_DQN
-=======
-./training_DQN/*
->>>>>>> fa39fb5ac3290214f20de31cfafeeee5e3d30a6d
