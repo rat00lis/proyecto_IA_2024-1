@@ -91,6 +91,7 @@ class MCTS2048:
 
                     if self.eval_function == 0: #Se evalúa el juego según la función de evaluación
                         evaluation_value = rollout_game.get_score()
+                        #evaluation_value = rollout_game.get_exponential_score()
                     elif self.eval_function == 1: 
                         evaluation_value = rollout_game.sum_matrix()
                     elif self.eval_function == 2:

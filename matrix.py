@@ -6,6 +6,7 @@ class matrix_2048:
     def __init__ (self):
         self.WINCONDITION = 2048
         self.score = 0
+        self.exponential_score = 0
         self.matrix = [[0] * 4 for _ in range(4)]
         self.add_number()
         self.add_number()
@@ -37,6 +38,7 @@ class matrix_2048:
                     column[i] *= 2
                     column[i+1] = 0
                     self.score += column[i]
+                    self.exponential_score += 2 ** column[i]
             column = [x for x in column if x != 0]
             column += [0] * (4 - len(column))
             for i in range(4):
@@ -55,6 +57,7 @@ class matrix_2048:
                     column[i] *= 2
                     column[i-1] = 0
                     self.score += column[i]
+                    self.exponential_score += 2 ** column[i]
             column = [x for x in column if x != 0]
             column = [0] * (4 - len(column)) + column
             for i in range(4):
@@ -74,6 +77,7 @@ class matrix_2048:
                     row[j] *= 2
                     row[j+1] = 0
                     self.score += row[j]
+                    self.exponential_score += 2 ** row[j]
             row = [x for x in row if x != 0]
             row += [0] * (4 - len(row))
             self.matrix[i] = row
@@ -92,6 +96,7 @@ class matrix_2048:
                     row[j] *= 2
                     row[j-1] = 0
                     self.score += row[j]
+                    self.exponential_score += 2 ** row[j]
             row = [x for x in row if x != 0]
             row = [0] * (4 - len(row)) + row
             self.matrix[i] = row
@@ -110,6 +115,9 @@ class matrix_2048:
     
     def get_score(self):
         return self.score
+    
+    def get_exponential_score(self):
+        return self.exponential_score
     
     #suma de toda la matriz
     def sum_matrix(self):

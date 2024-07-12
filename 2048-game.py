@@ -8,7 +8,10 @@ from randomRollouts import MCTS2048
 algorithm = 1 #0 = jugador, 1 = mcts
 
 if algorithm == 1:
-    MCTS2048 = MCTS2048(5,0,1)
+    rollouts_number = 100
+    avg_evaluations = 0
+    eval_function = 0
+    MCTS2048 = MCTS2048(rollouts_number, avg_evaluations, eval_function)
 
 def get_font_settings(cell):
     settings = {
@@ -101,7 +104,7 @@ def draw_game_over(screen, game, WIDTH, HEIGHT):
 
     pygame.display.flip() 
 
-def draw_game_layout(screen, game, WIDTH, HEIGHT):
+def draw_game_layout(screen, game):
     # Texto 2048
     font2048 = pygame.font.Font('fonts/ClearSans-Bold.ttf', 50)
     text2048 = font2048.render('2048', True, primary_font_color)
@@ -123,8 +126,6 @@ game = matrix_2048()
 # Window setting
 WIDTH = 700
 HEIGHT = 600
-
-animation_duration = 500
 
 # Matrix setting
 num_rows = len(game.matrix)
@@ -162,17 +163,16 @@ while running:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game.restart()
-        draw_game_layout(screen, game, WIDTH, HEIGHT)
+        draw_game_layout(screen, game)
         draw_game_board(screen, game.matrix, num_rows, num_cols, matrixStartX, matrixStartY, horizontal, vertical, margin, cellSize)
         pygame.display.flip()
         continue
     
-    draw_game_layout(screen, game, WIDTH, HEIGHT)
+    draw_game_layout(screen, game)
     draw_game_board(screen, game.matrix, num_rows, num_cols, matrixStartX, matrixStartY, horizontal, vertical, margin, cellSize)
-
+    valid_movement = False
     if algorithm == 0:
         # Eventos
-        valid_movement = False
         previous_matrix = copy.deepcopy(game.matrix)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -183,14 +183,15 @@ while running:
                 elif key == 's' or key == 'down': valid_movement = game.down()
                 elif key == 'a' or key == 'left': valid_movement = game.left()
                 elif key == 'd' or key == 'right': valid_movement = game.right()
-        if valid_movement:
-            game.add_number()
+    
     elif algorithm == 1:
         best_move = MCTS2048.select_best_move(game)
-        if best_move == 'up': game.up()
-        elif best_move == 'down': game.down()
-        elif best_move == 'left': game.left()
-        elif best_move == 'right': game.right()
+        if best_move == 'up': valid_movement = game.up()
+        elif best_move == 'down': valid_movement = game.down()
+        elif best_move == 'left': valid_movement = game.left()
+        elif best_move == 'right': valid_movement = game.right()
+    
+    if valid_movement:
         game.add_number()
     
     pygame.display.flip()
