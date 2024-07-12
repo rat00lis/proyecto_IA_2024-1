@@ -54,13 +54,13 @@ class DQN(nn.Module):
         x = F.dropout(self.dense1(x))
         return self.dense6(x)
     
-def encode_state(board):
-  board = np.array(board)
-  board_flat = [0 if e == 0 else int(math.log(e, 2)) for e in board.flatten()]
-  board_flat = torch.LongTensor(board_flat)
-  board_flat = F.one_hot(board_flat, num_classes=16).float().flatten()
-  board_flat = board_flat.reshape(1, 4, 4, 16).permute(0, 3, 1, 2)
-  return board_flat
+def encode_state(state):
+  state = np.array(state)
+  state_flatten = [0 if e == 0 else int(math.log(e, 2)) for e in state.flatten()]
+  state_flatten = torch.LongTensor(state_flatten)
+  state_flatten = F.one_hot(state_flatten, num_classes=16).float().flatten()
+  state_flatten = state_flatten.reshape(1, 4, 4, 16).permute(0, 3, 1, 2)
+  return state_flatten
 
 policy_net = DQN().to(DEVICE)
 policy_net.load_state_dict(torch.load('./training_DQN/policy_w.pth'))
@@ -87,7 +87,7 @@ total_scores, best_tile_list = [], []
 historical_max_value = 0
 
 # Número de episodios 
-num_test_episodes = 5
+num_test_episodes = 1000
 print("Start")
 for i_episode in range(num_test_episodes):
     game.restart()

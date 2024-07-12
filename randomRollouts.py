@@ -74,12 +74,12 @@ class MCTS2048:
         
 max_value = 0
 i = 1
-while max_value < 2048:
-    game = matrix_2048()
-    mcts = MCTS2048(game)
-    max_value = mcts.init_algorithm(game)
-    print(f"Max value in game {i}: ", max_value)
-    game.print_matrix()
-    print()
-    i += 1
+#while max_value < 2048:
+#    game = matrix_2048()
+#    mcts = MCTS2048(game)
+#    max_value = mcts.init_algorithm(game)
+#    print(f"Max value in game {i}: ", max_value)
+#    game.print_matrix()
+#    print()
+#    i += 1
 

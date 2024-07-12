@@ -57,13 +57,13 @@ class DQN(nn.Module):
         x = F.dropout(self.dense1(x))
         return self.dense6(x)
     
-def encode_state(game):
-  game = np.array(game)
-  game_flatten = [0 if e == 0 else int(math.log(e, 2)) for e in game.flatten()]
-  game_flatten = torch.LongTensor(game_flatten)
-  game_flatten = F.one_hot(game_flatten, num_classes=16).float().flatten()
-  game_flatten = game_flatten.reshape(1, 4, 4, 16).permute(0, 3, 1, 2)
-  return game_flatten
+def encode_state(state):
+  state = np.array(state)
+  state_flatten = [0 if e == 0 else int(math.log(e, 2)) for e in state.flatten()]
+  state_flatten = torch.LongTensor(state_flatten)
+  state_flatten = F.one_hot(state_flatten, num_classes=16).float().flatten()
+  state_flatten = state_flatten.reshape(1, 4, 4, 16).permute(0, 3, 1, 2)
+  return state_flatten
 
 # Replay buffer
 Transition = namedtuple('Transition',

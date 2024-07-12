@@ -7,7 +7,7 @@ from matrix import matrix_2048
 from randomRollouts import MCTS2048
 from DQN_agent import DQN_Agent
 
-algorithm = 0 #0 = jugador, 1 = mcts # 2 = DQN
+algorithm = 2 #0 = jugador, 1 = mcts # 2 = DQN
 
 if algorithm == 1:
     MCTS2048 = MCTS2048(5,0,1)
@@ -206,8 +206,8 @@ while running:
             valid_move = game.left()
         elif action.item() == 3:
             valid_move = game.right()
-        if valid_movement:
+        if valid_move:
             game.add_number()  
-        time.sleep(0.3)  
+        time.sleep(0.1)  
     pygame.display.flip()
 pygame.quit()

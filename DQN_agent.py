@@ -3,8 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import math
-from itertools import count
-from matrix import matrix_2048
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(DEVICE)
