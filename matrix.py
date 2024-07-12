@@ -22,8 +22,8 @@ class matrix_2048:
             return
         
         random_cell = random.choice(empty) #se elige una celda aleatoria de la lista de celdas vacías
-        random_number = random.randint(0,1) #se elige un número aleatorio entre 0 y 1
-        self.matrix[random_cell[0]][random_cell[1]] = 2 if random_number == 0 else 4 #se añade un 2 o un 4 a la celda aleatoria
+        random_number = random.randint(0,9) #se elige un número aleatorio entre 0 y 1
+        self.matrix[random_cell[0]][random_cell[1]] = 2 if random_number <= 8 else 4 #se añade un 2 o un 4 a la celda aleatoria
 
     # mover la matriz hacia arriba
     def up(self):
@@ -95,11 +95,11 @@ class matrix_2048:
             row = [x for x in row if x != 0]
             row = [0] * (4 - len(row)) + row
             self.matrix[i] = row
-    
+        
         return old_matrix != self.matrix
     
     #el agente de inteligencia artificial debe ser capaz de obtener el estado actual del juego
-    def get_matrix(self):
+    def get_state(self):
         #retornar la matriz
         return self.matrix
     
@@ -137,21 +137,14 @@ class matrix_2048:
     #se puede probar un movimiento sin cambiar la matriz
     #y se retorna la matriz resultante
     def try_step(self, move):
-        new_matrix = copy.deepcopy(self.matrix)
-        if move == 'up':
-            self.up()
-        elif move == 'down':
-            self.down()
-        elif move == 'left':
-            self.left()
-        elif move == 'right':
-            self.right()
-        else:
-            #exception
-            return None
-        temp = copy.deepcopy(self.matrix)
-        self.matrix = new_matrix
-        return temp
+        new_matrix = copy.deepcopy(self)
+        if move == 'up': new_matrix.up()
+        elif move == 'down': new_matrix.down()
+        elif move == 'left': new_matrix.left()
+        elif move == 'right': new_matrix.right()
+        else: return None
+        
+        return new_matrix.get_state()
     
     #resetear
     def restart(self):
