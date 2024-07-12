@@ -1,1 +1,3 @@
-__pycache__/*
+__pycache__/
+genetico/agent.json
+DQN/training_DQN

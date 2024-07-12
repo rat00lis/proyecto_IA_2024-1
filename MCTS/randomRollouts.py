@@ -10,8 +10,8 @@ snake_weight = np.array([[ 10,   8,    7,    6.5], # Se define la matriz de peso
                          [-3.8, -3.7, -3.5, -3]])
 
 class MCTS2048:
-    def __init__(self, number_of_rollouts, avg_evaluations, eval_function):
-        self.number_of_rollouts = number_of_rollouts #number_of_rollouts define la cantidad de simulaciones realizadas para cada movimiento
+    def __init__(self, rollouts_number, avg_evaluations, eval_function):
+        self.rollouts_number = rollouts_number #rollouts_number define la cantidad de simulaciones realizadas para cada movimiento
         self.avg_evaluations = avg_evaluations #self.avg_evaluations define si se promedia el valor de las simulaciones
         self.eval_function = eval_function #eval_function define la función de evaluación, 0 es el puntaje, 1 es la suma de la matriz, 2 es la heurística
         pass
@@ -34,7 +34,7 @@ class MCTS2048:
     #             if getattr(game_copy, move)(): #Si el movimiento es válido
     #                 rollout_eval = 0 #Evaluación de las simulación específica
 
-    #                 for i in range(self.number_of_rollouts): #Se realizan las simulaciones
+    #                 for i in range(self.rollouts_number): #Se realizan las simulaciones
     #                     rollout_game = copy.deepcopy(game_copy) #Otra copia del juego para simular
     #                     evaluation_value = 0 #Valor de la evaluación
 
@@ -53,7 +53,7 @@ class MCTS2048:
     #                     rollout_eval += evaluation_value #Se suma la evaluación de la simulación
             
     #                 if self.avg_evaluations == 1: #Opcion de promediar las evaluaciones
-    #                     rollout_eval /= self.number_of_rollouts
+    #                     rollout_eval /= self.rollouts_number
 
     #                 if rollout_eval > best_rollout_eval: #Si la evaluación es mejor que la mejor evaluación
     #                     best_rollout_eval = rollout_eval #Se actualiza la mejor evaluación
@@ -80,7 +80,7 @@ class MCTS2048:
             if getattr(game_copy, move)(): #Si el movimiento es válido
                 rollout_eval = 0 #Evaluación de las simulación específica
 
-                for i in range(self.number_of_rollouts): #Se realizan las simulaciones
+                for i in range(self.rollouts_number): #Se realizan las simulaciones
                     rollout_game = copy.deepcopy(game_copy) #Otra copia del juego para simular
                     evaluation_value = 0 #Valor de la evaluación
 
@@ -100,7 +100,7 @@ class MCTS2048:
                     rollout_eval += evaluation_value #Se suma la evaluación de la simulación
         
                 if self.avg_evaluations == 1: #Opcion de promediar las evaluaciones
-                    rollout_eval /= self.number_of_rollouts
+                    rollout_eval /= self.rollouts_number
 
                 if rollout_eval > best_rollout_eval: #Si la evaluación es mejor que la mejor evaluación
                     best_rollout_eval = rollout_eval #Se actualiza la mejor evaluación
